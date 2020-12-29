@@ -1,6 +1,8 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
+const fs = require('fs');
 
 let mainWindow;
+let paths;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -11,45 +13,15 @@ function createWindow() {
 
     mainWindow.loadFile('index.html');
 
-    ipcMain.on('openImageFolderWindow', event => {
+    ipcMain.on('getPaths', event => {
         dialog
             .showOpenDialog(mainWindow, {
-                buttonLabel: 'Select images folder',
+                buttonLabel: 'Select paths text file',
                 defaultPath: app.getPath('desktop'),
-                properties: ['openDirectory'],
             })
             .then(result => {
-                event.reply('imageFolderPath', result.filePaths);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    });
-
-    ipcMain.on('openTextFolderWindow', event => {
-        dialog
-            .showOpenDialog(mainWindow, {
-                buttonLabel: 'Select texts folder',
-                defaultPath: app.getPath('desktop'),
-                properties: ['openDirectory'],
-            })
-            .then(result => {
-                event.reply('textFolderPath', result.filePaths);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    });
-
-    ipcMain.on('openUserOutputTextFolderWindow', event => {
-        dialog
-            .showOpenDialog(mainWindow, {
-                buttonLabel: 'Select user output texts folder',
-                defaultPath: app.getPath('desktop'),
-                properties: ['openDirectory'],
-            })
-            .then(result => {
-                event.reply('userOutputTextFolderPath', result.filePaths);
+                paths = result.filePaths;
+                event.reply('getPaths', result.filePaths);
             })
             .catch(err => {
                 console.log(err);

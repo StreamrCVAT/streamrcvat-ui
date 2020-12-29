@@ -17,9 +17,7 @@ let userCoordinates = [];
 let data = [];
 
 const promptDialog = () => {
-    ipcRenderer.send('openImageFolderWindow');
-    ipcRenderer.send('openTextFolderWindow');
-    ipcRenderer.send('openUserOutputTextFolderWindow');
+    ipcRenderer.send('getPaths');
 };
 
 const saveUserCoordinates = () => {
@@ -90,8 +88,16 @@ document.querySelector('.nav').addEventListener('click', () => {
     document.querySelector('.container-right').classList.toggle('animate-hide-right');
 });
 
-ipcRenderer.on('imageFolderPath', (event, arg) => {
-    imageFolderPath = arg[0];
+ipcRenderer.on('getPaths', (event, arg) => {
+    imageFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[0].slice(0, -1);
+    textFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1].slice(0, -1);
+    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2].slice(0, -1);
+
+    imagePath();
+    textPath();
+});
+
+const imagePath = () => {
     imageFiles = fs.readdirSync(imageFolderPath);
 
     document.querySelector('.btn-upload').style.display = 'none';
@@ -103,11 +109,9 @@ ipcRenderer.on('imageFolderPath', (event, arg) => {
     document.querySelectorAll('.btn').forEach(btn => {
         btn.classList.remove('hidden');
     });
-});
+};
 
-ipcRenderer.on('textFolderPath', (event, arg) => {
-    textFolderPath = arg[0];
-
+const textPath = () => {
     watch(textFolderPath, { recursive: true }, (evt, name) => {
         textFiles = fs.readdirSync(textFolderPath);
         htmlFilePaths = '';
@@ -156,7 +160,7 @@ ipcRenderer.on('textFolderPath', (event, arg) => {
 
     data = fs.readFileSync(`${textFolderPath}\\${textFiles[0]}`, 'utf-8').split(' ');
     getTextData(data);
-});
+};
 
 document.querySelector('.btn-reset').addEventListener('click', () => {
     data = fs.readFileSync(`${textFolderPath}\\${textFiles[counter]}`, 'utf-8').split(' ');
@@ -266,7 +270,3 @@ const makeResizableDiv = (yMin, xMin, yMax, xMax) => {
         }
     }
 };
-
-ipcRenderer.on('userOutputTextFolderPath', (event, arg) => {
-    userOutputTextFolderPath = arg[0];
-});
