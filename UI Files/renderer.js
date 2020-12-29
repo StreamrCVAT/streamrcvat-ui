@@ -43,7 +43,7 @@ const getTextData = (data, reset = false) => {
         for (let i = 0; i < data.length; i++) data[i] *= 1;
         userCoordinates = data;
         document.querySelector(
-            '.new-coordinates',
+            '.user-coordinates',
         ).innerHTML = `(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]})`;
         makeResizableDiv(...data);
     } else {
@@ -61,17 +61,17 @@ const getTextData = (data, reset = false) => {
             for (let i = 0; i < data.length; i++) data[i] *= 1;
 
             document.querySelector(
-                '.old-coordinates',
+                '.modelb-coordinates',
             ).innerHTML = `(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]})`;
 
             if (userCoordinates.length !== 0) {
                 document.querySelector(
-                    '.new-coordinates',
+                    '.user-coordinates',
                 ).innerHTML = `(${userCoordinates[0]}, ${userCoordinates[1]}, ${userCoordinates[2]}, ${userCoordinates[3]})`;
                 makeResizableDiv(...userCoordinates);
             } else {
                 document.querySelector(
-                    '.new-coordinates',
+                    '.user-coordinates',
                 ).innerHTML = `(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]})`;
                 makeResizableDiv(...data);
             }
@@ -261,7 +261,7 @@ const makeResizableDiv = (yMin, xMin, yMax, xMax) => {
                 userCoordinates[1] = e.pageX;
             }
             document.querySelector(
-                '.new-coordinates',
+                '.user-coordinates',
             ).innerHTML = `(${userCoordinates[0]}, ${userCoordinates[1]}, ${userCoordinates[2]}, ${userCoordinates[3]})`;
         }
 
