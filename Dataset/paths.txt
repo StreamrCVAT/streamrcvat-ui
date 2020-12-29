@@ -1,3 +1,5 @@
 C:\Users\Suriya\Desktop\Annotation_Tool_UI\Dataset\video_trim (frames)
 C:\Users\Suriya\Desktop\Annotation_Tool_UI\Dataset\annotated frames coor (1 to 499)
+C:\Users\Suriya\Desktop\Annotation_Tool_UI\Dataset\annotated frames coor (1 to 499)
+C:\Users\Suriya\Desktop\Annotation_Tool_UI\Dataset\annotated frames coor (1 to 499)
 C:\Users\Suriya\Desktop\Annotation_Tool_UI\Dataset\ui_output
