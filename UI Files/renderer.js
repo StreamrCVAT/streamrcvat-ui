@@ -91,7 +91,7 @@ document.querySelector('.nav').addEventListener('click', () => {
 ipcRenderer.on('getPaths', (event, arg) => {
     imageFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[0].slice(0, -1);
     textFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1].slice(0, -1);
-    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2].slice(0, -1);
+    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2];
 
     imagePath();
     textPath();
