@@ -8,13 +8,19 @@ let counter = 0;
 let imageFolderPath;
 let imageFiles;
 
-let textFolderPath;
-let textFiles;
+let yoloFolderPath;
+let yoloFiles;
+let modelBFolderPath;
+let modelBFiles;
+let linearInterpolationFolderPath;
+let linearInterpolationFiles;
 
 let userOutputTextFolderPath;
 let userCoordinates = [];
 
-let data = [];
+let modelBData = [];
+let yoloData = [];
+let linearInterpolationData = [];
 
 const promptDialog = () => {
     ipcRenderer.send('getPaths');
@@ -38,14 +44,14 @@ const saveUserCoordinates = () => {
     }
 };
 
-const getTextData = (data, reset = false) => {
+const getTextData = (reset = false) => {
     if (reset && !fs.existsSync(`${userOutputTextFolderPath}\\${counter + 1}.txt`)) {
-        for (let i = 0; i < data.length; i++) data[i] *= 1;
-        userCoordinates = data;
+        for (let i = 0; i < modelBData.length; i++) modelBData[i] *= 1;
+        userCoordinates = modelBData;
         document.querySelector(
             '.user-coordinates',
-        ).innerHTML = `(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]})`;
-        makeResizableDiv(...data);
+        ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
+        makeResizableDiv(...modelBData);
     } else {
         if (fs.existsSync(`${userOutputTextFolderPath}\\${counter + 1}.txt`)) {
             userCoordinates = fs
@@ -55,14 +61,22 @@ const getTextData = (data, reset = false) => {
             for (let i = 0; i < userCoordinates.length; i++) userCoordinates[i] *= 1;
         }
 
-        if (counter < textFiles.length && counter >= 0) {
-            if (data.length > 4) objectName = data.shift();
+        if (counter < modelBFiles.length && counter >= 0) {
+            if (yoloData.length > 4) yoloData.shift();
+            if (modelBData.length > 4) objectName = modelBData.shift();
+            if (linearInterpolationData.length > 4) linearInterpolationData.shift();
 
-            for (let i = 0; i < data.length; i++) data[i] *= 1;
+            for (let i = 0; i < modelBData.length; i++) modelBData[i] *= 1;
 
             document.querySelector(
-                '.modelb-coordinates',
-            ).innerHTML = `(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]})`;
+                '.yolo-coordinates',
+            ).innerHTML = `(${yoloData[0]}, ${yoloData[1]}, ${yoloData[2]}, ${yoloData[3]})`;
+            document.querySelector(
+                '.modelB-coordinates',
+            ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
+            document.querySelector(
+                '.linear-interpolation-coordinates',
+            ).innerHTML = `(${linearInterpolationData[0]}, ${linearInterpolationData[1]}, ${linearInterpolationData[2]}, ${linearInterpolationData[3]})`;
 
             if (userCoordinates.length !== 0) {
                 document.querySelector(
@@ -72,11 +86,42 @@ const getTextData = (data, reset = false) => {
             } else {
                 document.querySelector(
                     '.user-coordinates',
-                ).innerHTML = `(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]})`;
-                makeResizableDiv(...data);
+                ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
+                makeResizableDiv(...modelBData);
             }
         }
     }
+
+    drawYolo(...yoloData);
+    drawModelB(...modelBData);
+    drawLinearInterpolation(...linearInterpolationData);
+};
+
+const drawYolo = (yMin, xMin, yMax, xMax) => {
+    let yoloCanva = document.querySelector('.yolo');
+    yoloCanva.style.border = '3px solid #120078';
+    yoloCanva.style.top = `${yMin}px`;
+    yoloCanva.style.left = `${xMin}px`;
+    yoloCanva.style.width = `${xMax - xMin}px`;
+    yoloCanva.style.height = `${yMax - yMin}px`;
+};
+
+const drawModelB = (yMin, xMin, yMax, xMax) => {
+    let modelBCanva = document.querySelector('.modelB');
+    modelBCanva.style.border = '3px solid #ea2c62';
+    modelBCanva.style.top = `${yMin}px`;
+    modelBCanva.style.left = `${xMin}px`;
+    modelBCanva.style.width = `${xMax - xMin}px`;
+    modelBCanva.style.height = `${yMax - yMin}px`;
+};
+
+const drawLinearInterpolation = (yMin, xMin, yMax, xMax) => {
+    let linearInterpolationCanva = document.querySelector('.linear-interpolation');
+    linearInterpolationCanva.style.border = '3px solid #28df99';
+    linearInterpolationCanva.style.top = `${yMin}px`;
+    linearInterpolationCanva.style.left = `${xMin}px`;
+    linearInterpolationCanva.style.width = `${xMax - xMin}px`;
+    linearInterpolationCanva.style.height = `${yMax - yMin}px`;
 };
 
 document.querySelector('.btn-upload').addEventListener('click', promptDialog);
@@ -90,15 +135,19 @@ document.querySelector('.nav').addEventListener('click', () => {
 
 ipcRenderer.on('getPaths', (event, arg) => {
     imageFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[0].slice(0, -1);
-    textFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1].slice(0, -1);
-    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2];
+    yoloFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1].slice(0, -1);
+    modelBFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2].slice(0, -1);
+    linearInterpolationFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[3].slice(0, -1);
+    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[4];
 
-    imagePath();
-    textPath();
+    loadInitialComponents();
+    controller();
 });
 
-const imagePath = () => {
+const loadInitialComponents = () => {
     imageFiles = fs.readdirSync(imageFolderPath);
+    yoloFiles = fs.readdirSync(yoloFolderPath);
+    linearInterpolationFiles = fs.readdirSync(linearInterpolationFolderPath);
 
     document.querySelector('.btn-upload').style.display = 'none';
     document.querySelector('.dummy-text').style.display = 'none';
@@ -111,36 +160,43 @@ const imagePath = () => {
     });
 };
 
-const textPath = () => {
-    watch(textFolderPath, { recursive: true }, (evt, name) => {
-        textFiles = fs.readdirSync(textFolderPath);
-        htmlFilePaths = '';
-        textFiles.forEach(file => {
-            htmlFilePaths += `<li class="file-item">${file}</li>`;
+const controller = () => {
+    watch(modelBFolderPath, { recursive: true }, (evt, name) => {
+        modelBFiles = fs.readdirSync(modelBFolderPath);
+        htmlModelBFilePaths = '';
+        modelBFiles.forEach(file => {
+            htmlModelBFilePaths += `<li class="file-item">${file}</li>`;
         });
-        document.querySelector('.file-list').innerHTML = htmlFilePaths;
-        document.querySelector('.file-name').innerHTML = textFiles[counter];
+        document.querySelector('.file-list').innerHTML = htmlModelBFilePaths;
+        document.querySelector('.file-name').innerHTML = modelBFiles[counter];
     });
 
-    textFiles = fs.readdirSync(textFolderPath);
-    htmlFilePaths = '';
-    textFiles.forEach(file => {
-        htmlFilePaths += `<li class="file-item">${file}</li>`;
+    modelBFiles = fs.readdirSync(modelBFolderPath);
+    htmlModelBFilePaths = '';
+    modelBFiles.forEach(file => {
+        htmlModelBFilePaths += `<li class="file-item">${file}</li>`;
     });
-    document.querySelector('.file-list').innerHTML = htmlFilePaths;
-    document.querySelector('.file-name').innerHTML = textFiles[counter];
+    document.querySelector('.file-list').innerHTML = htmlModelBFilePaths;
+    document.querySelector('.file-name').innerHTML = modelBFiles[counter];
 
     document.querySelector('.btn-next').addEventListener('click', () => {
         saveUserCoordinates();
 
-        if (textFiles[counter + 1]) {
+        if (modelBFiles[counter + 1]) {
             counter++;
             userCoordinates = [];
             document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
-            document.querySelector('.file-name').innerHTML = textFiles[counter];
+            document.querySelector('.file-name').innerHTML = modelBFiles[counter];
 
-            data = fs.readFileSync(`${textFolderPath}\\${textFiles[counter]}`, 'utf-8').split(' ');
-            getTextData(data);
+            yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
+            modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+            linearInterpolationData = fs
+                .readFileSync(
+                    `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                    'utf-8',
+                )
+                .split(' ');
+            getTextData();
         }
     });
 
@@ -151,25 +207,54 @@ const textPath = () => {
             counter--;
             userCoordinates = [];
             document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
-            document.querySelector('.file-name').innerHTML = textFiles[counter];
+            document.querySelector('.file-name').innerHTML = modelBFiles[counter];
 
-            data = fs.readFileSync(`${textFolderPath}\\${textFiles[counter]}`, 'utf-8').split(' ');
-            getTextData(data);
+            yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
+            modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+            linearInterpolationData = fs
+                .readFileSync(
+                    `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                    'utf-8',
+                )
+                .split(' ');
+            getTextData();
         }
     });
 
-    data = fs.readFileSync(`${textFolderPath}\\${textFiles[0]}`, 'utf-8').split(' ');
-    getTextData(data);
+    yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[0]}`, 'utf-8').split(' ');
+    modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[0]}`, 'utf-8').split(' ');
+    linearInterpolationData = fs
+        .readFileSync(`${linearInterpolationFolderPath}\\${linearInterpolationFiles[0]}`, 'utf-8')
+        .split(' ');
+    getTextData();
 };
 
 document.querySelector('.btn-reset').addEventListener('click', () => {
-    data = fs.readFileSync(`${textFolderPath}\\${textFiles[counter]}`, 'utf-8').split(' ');
-    data.shift();
-    getTextData(data, true);
+    modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+    modelBData.shift();
+    getTextData(true);
+});
+
+document.querySelector('.coordinates-box-yolo').addEventListener('click', () => {
+    document.querySelector('.coordinates-name-yolo').classList.toggle('opacity-half');
+    document.querySelector('.coordinates-box-yolo').classList.toggle('opacity-half');
+    document.querySelector('.yolo').classList.toggle('opacity-zero');
+});
+
+document.querySelector('.coordinates-box-modelB').addEventListener('click', () => {
+    document.querySelector('.coordinates-name-modelB').classList.toggle('opacity-half');
+    document.querySelector('.coordinates-box-modelB').classList.toggle('opacity-half');
+    document.querySelector('.modelB').classList.toggle('opacity-zero');
+});
+
+document.querySelector('.coordinates-box-linear-interpolation').addEventListener('click', () => {
+    document.querySelector('.coordinates-name-linear-interpolation').classList.toggle('opacity-half');
+    document.querySelector('.coordinates-box-linear-interpolation').classList.toggle('opacity-half');
+    document.querySelector('.linear-interpolation').classList.toggle('opacity-zero');
 });
 
 const makeResizableDiv = (yMin, xMin, yMax, xMax) => {
-    userCoordinates = data;
+    userCoordinates = modelBData;
 
     const element = document.querySelector('.resizable');
     const resizers = document.querySelectorAll('.resizable .resizer');
@@ -186,6 +271,8 @@ const makeResizableDiv = (yMin, xMin, yMax, xMax) => {
     document.querySelector('.resizable').style.left = `${xMin}px`;
     document.querySelector('.resizable').style.height = `${yMax - yMin}px`;
     document.querySelector('.resizable').style.width = `${xMax - xMin}px`;
+
+    console.log(`* ${[xMin, yMin, xMax - xMin, yMax - yMin]}`);
 
     for (let i = 0; i < resizers.length; i++) {
         const currentResizer = resizers[i];
