@@ -161,6 +161,10 @@ const loadInitialComponents = () => {
 };
 
 const controller = () => {
+    watch(yoloFolderPath, { recursive: true }, (evt, name) => {
+        yoloFiles = fs.readdirSync(yoloFolderPath);
+    });
+
     watch(modelBFolderPath, { recursive: true }, (evt, name) => {
         modelBFiles = fs.readdirSync(modelBFolderPath);
         htmlModelBFilePaths = '';
@@ -169,6 +173,10 @@ const controller = () => {
         });
         document.querySelector('.file-list').innerHTML = htmlModelBFilePaths;
         document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+    });
+
+    watch(linearInterpolationFolderPath, { recursive: true }, (evt, name) => {
+        linearInterpolationFiles = fs.readdirSync(linearInterpolationFolderPath);
     });
 
     modelBFiles = fs.readdirSync(modelBFolderPath);
