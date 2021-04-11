@@ -11,6 +11,7 @@ function createWindow() {
         webPreferences: { nodeIntegration: true },
     });
 
+    mainWindow.maximize();
     mainWindow.loadFile('index.html');
 
     ipcMain.on('getPaths', event => {
@@ -26,6 +27,18 @@ function createWindow() {
             .catch(err => {
                 console.log(err);
             });
+    });
+
+    mainWindow.on('close', function (e) {
+        const choice = dialog.showMessageBoxSync(this, {
+            type: 'question',
+            buttons: ['Yes', 'No'],
+            title: 'Confirm',
+            message: 'Are you sure you want to quit?',
+        });
+        if (choice === 1) {
+            e.preventDefault();
+        }
     });
 
     mainWindow.on('closed', () => {

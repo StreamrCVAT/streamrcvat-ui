@@ -34,12 +34,12 @@ const saveUserCoordinates = () => {
         userCoordinates.shift();
         fs.writeFileSync(
             `${userOutputTextFolderPath}\\${counter + 1}.txt`,
-            `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`,
+            `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     } else {
         fs.writeFileSync(
             `${userOutputTextFolderPath}\\${counter + 1}.txt`,
-            `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`,
+            `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     }
 };
@@ -49,7 +49,7 @@ const getTextData = (reset = false) => {
         for (let i = 0; i < modelBData.length; i++) modelBData[i] *= 1;
         userCoordinates = modelBData;
         document.querySelector(
-            '.user-coordinates',
+            '.user-coordinates'
         ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
         makeResizableDiv(...modelBData);
     } else {
@@ -69,23 +69,23 @@ const getTextData = (reset = false) => {
             for (let i = 0; i < modelBData.length; i++) modelBData[i] *= 1;
 
             document.querySelector(
-                '.yolo-coordinates',
+                '.yolo-coordinates'
             ).innerHTML = `(${yoloData[0]}, ${yoloData[1]}, ${yoloData[2]}, ${yoloData[3]})`;
             document.querySelector(
-                '.modelB-coordinates',
+                '.modelB-coordinates'
             ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
             document.querySelector(
-                '.linear-interpolation-coordinates',
+                '.linear-interpolation-coordinates'
             ).innerHTML = `(${linearInterpolationData[0]}, ${linearInterpolationData[1]}, ${linearInterpolationData[2]}, ${linearInterpolationData[3]})`;
 
             if (userCoordinates.length !== 0) {
                 document.querySelector(
-                    '.user-coordinates',
+                    '.user-coordinates'
                 ).innerHTML = `(${userCoordinates[0]}, ${userCoordinates[1]}, ${userCoordinates[2]}, ${userCoordinates[3]})`;
                 makeResizableDiv(...userCoordinates);
             } else {
                 document.querySelector(
-                    '.user-coordinates',
+                    '.user-coordinates'
                 ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
                 makeResizableDiv(...modelBData);
             }
@@ -104,6 +104,7 @@ const drawYolo = (yMin, xMin, yMax, xMax) => {
     yoloCanva.style.left = `${xMin}px`;
     yoloCanva.style.width = `${xMax - xMin}px`;
     yoloCanva.style.height = `${yMax - yMin}px`;
+    yoloCanva.style.pointerEvents = 'none';
 };
 
 const drawModelB = (yMin, xMin, yMax, xMax) => {
@@ -113,6 +114,7 @@ const drawModelB = (yMin, xMin, yMax, xMax) => {
     modelBCanva.style.left = `${xMin}px`;
     modelBCanva.style.width = `${xMax - xMin}px`;
     modelBCanva.style.height = `${yMax - yMin}px`;
+    modelBCanva.style.pointerEvents = 'none';
 };
 
 const drawLinearInterpolation = (yMin, xMin, yMax, xMax) => {
@@ -122,6 +124,7 @@ const drawLinearInterpolation = (yMin, xMin, yMax, xMax) => {
     linearInterpolationCanva.style.left = `${xMin}px`;
     linearInterpolationCanva.style.width = `${xMax - xMin}px`;
     linearInterpolationCanva.style.height = `${yMax - yMin}px`;
+    linearInterpolationCanva.style.pointerEvents = 'none';
 };
 
 document.querySelector('.btn-upload').addEventListener('click', promptDialog);
@@ -190,21 +193,39 @@ const controller = () => {
     document.querySelector('.btn-next').addEventListener('click', () => {
         saveUserCoordinates();
 
-        if (modelBFiles[counter + 1]) {
-            counter++;
-            userCoordinates = [];
-            document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
-            document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+        if (!fs.existsSync(`${userOutputTextFolderPath}\\${counter + 2}.txt`)) {
+            document.querySelector('.resizable').style.pointerEvents = 'all';
+        } else {
+            document.querySelector('.resizable').style.pointerEvents = 'none';
+        }
 
-            yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
-            modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
-            linearInterpolationData = fs
-                .readFileSync(
-                    `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
-                    'utf-8',
-                )
-                .split(' ');
-            getTextData();
+        if (modelBFiles[counter + 1]) {
+            fetch('https://localhost:5000/trigger', {
+                method: 'post',
+                body: JSON.stringify({
+                    frame_number: counter + 1,
+                    frame_filename: `${counter + 1}.txt`,
+                }).then(() => {
+                    counter++;
+                    userCoordinates = [];
+                    document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
+                    document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+
+                    yoloData = fs
+                        .readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8')
+                        .split(' ');
+                    modelBData = fs
+                        .readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8')
+                        .split(' ');
+                    linearInterpolationData = fs
+                        .readFileSync(
+                            `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                            'utf-8'
+                        )
+                        .split(' ');
+                    getTextData();
+                }),
+            });
         }
     });
 
@@ -222,10 +243,14 @@ const controller = () => {
             linearInterpolationData = fs
                 .readFileSync(
                     `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
-                    'utf-8',
+                    'utf-8'
                 )
                 .split(' ');
             getTextData();
+
+            if (fs.existsSync(`${userOutputTextFolderPath}\\${counter}.txt`)) {
+                document.querySelector('.resizable').style.pointerEvents = 'none';
+            }
         }
     });
 
@@ -280,8 +305,6 @@ const makeResizableDiv = (yMin, xMin, yMax, xMax) => {
     document.querySelector('.resizable').style.height = `${yMax - yMin}px`;
     document.querySelector('.resizable').style.width = `${xMax - xMin}px`;
 
-    console.log(`* ${[xMin, yMin, xMax - xMin, yMax - yMin]}`);
-
     for (let i = 0; i < resizers.length; i++) {
         const currentResizer = resizers[i];
 
@@ -289,11 +312,11 @@ const makeResizableDiv = (yMin, xMin, yMax, xMax) => {
             e.preventDefault();
 
             original_width = parseFloat(
-                getComputedStyle(element, null).getPropertyValue('width').replace('px', ''),
+                getComputedStyle(element, null).getPropertyValue('width').replace('px', '')
             );
 
             original_height = parseFloat(
-                getComputedStyle(element, null).getPropertyValue('height').replace('px', ''),
+                getComputedStyle(element, null).getPropertyValue('height').replace('px', '')
             );
 
             original_x = element.getBoundingClientRect().left;
@@ -356,7 +379,7 @@ const makeResizableDiv = (yMin, xMin, yMax, xMax) => {
                 userCoordinates[1] = e.pageX;
             }
             document.querySelector(
-                '.user-coordinates',
+                '.user-coordinates'
             ).innerHTML = `(${userCoordinates[0]}, ${userCoordinates[1]}, ${userCoordinates[2]}, ${userCoordinates[3]})`;
         }
 
