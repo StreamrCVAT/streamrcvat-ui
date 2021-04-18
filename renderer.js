@@ -172,6 +172,22 @@ const loadInitialComponents = () => {
     });
 };
 
+async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data)
+    });
+    return await response.json();
+}
+
 const controller = () => {
     watch(yoloFolderPath, {
         recursive: true
@@ -216,28 +232,12 @@ const controller = () => {
             document.querySelector('.resizable').style.pointerEvents = 'none';
         }
 
-        async function postData(url = '', data = {}) {
-            const response = await fetch(url, {
-                method: 'POST',
-                mode: 'cors',
-                cache: 'no-cache',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                redirect: 'follow',
-                referrerPolicy: 'no-referrer',
-                body: JSON.stringify(data)
-            });
-            return response.json();
-        }
-
-        if (modelBFiles[counter + 1]) {
-            postData('http://127.0.0.1:5000/trigger', {
-                    frame_number: counter + 1,
-                    frame_filename: `${outputFiles[counter]}`
-                })
-                .then(data => {
+        postData('http://127.0.0.1:5000/trigger', {
+                frame_number: counter + 1,
+                frame_filename: `${outputFiles[counter]}`
+            })
+            .then(data => {
+                if (modelBFiles[counter + 1]) {
                     console.log(data);
                     console.log("POST API call completed successfully!")
                     counter++;
@@ -254,8 +254,9 @@ const controller = () => {
                         )
                         .split(' ');
                     getTextData();
-                });
-        }
+                }
+            });
+
     });
 
     document.querySelector('.btn-save').addEventListener('click', saveUserCoordinates);
