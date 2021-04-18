@@ -14,6 +14,7 @@ let modelBFolderPath;
 let modelBFiles;
 let linearInterpolationFolderPath;
 let linearInterpolationFiles;
+let yoloAllCoordinatesFolderPath;
 
 let outputFiles = [];
 
@@ -141,11 +142,13 @@ document.querySelector('.nav').addEventListener('click', () => {
 });
 
 ipcRenderer.on('getPaths', (event, arg) => {
-    imageFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[0];
-    yoloFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1];
-    modelBFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2];
-    linearInterpolationFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[3];
-    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[4];
+    imageFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[0].slice(0, -1);
+    yoloFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1].slice(0, -1);
+    modelBFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2].slice(0, -1);
+    linearInterpolationFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[3].slice(0, -1);
+    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[4].slice(0, -1);
+    yoloAllCoordinatesFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[5];
+
 
     loadInitialComponents();
     controller();
