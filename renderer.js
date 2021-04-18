@@ -31,25 +31,25 @@ const promptDialog = () => {
 const saveUserCoordinates = () => {
     outputFiles = fs.readdirSync(modelBFolderPath);
 
-    if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}.txt`)) {
+    if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
         userCoordinates = fs
-            .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}.txt`, 'utf-8')
+            .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`, 'utf-8')
             .split(' ');
         userCoordinates.shift();
         fs.writeFileSync(
-            `${userOutputTextFolderPath}\\${outputFiles[counter]}.txt`,
+            `${userOutputTextFolderPath}\\${outputFiles[counter]}`,
             `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     } else {
         fs.writeFileSync(
-            `${userOutputTextFolderPath}\\${outputFiles[counter]}.txt`,
+            `${userOutputTextFolderPath}\\${outputFiles[counter]}`,
             `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     }
 };
 
 const getTextData = (reset = false) => {
-    if (reset && !fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}.txt`)) {
+    if (reset && !fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
         for (let i = 0; i < modelBData.length; i++) modelBData[i] *= 1;
         userCoordinates = modelBData;
         document.querySelector(
@@ -57,9 +57,9 @@ const getTextData = (reset = false) => {
         ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
         makeResizableDiv(...modelBData);
     } else {
-        if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}.txt`)) {
+        if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
             userCoordinates = fs
-                .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}.txt`, 'utf-8')
+                .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`, 'utf-8')
                 .split(' ');
             userCoordinates.shift();
             for (let i = 0; i < userCoordinates.length; i++) userCoordinates[i] *= 1;
@@ -141,10 +141,10 @@ document.querySelector('.nav').addEventListener('click', () => {
 });
 
 ipcRenderer.on('getPaths', (event, arg) => {
-    imageFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[0].slice(0, -1);
-    yoloFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1].slice(0, -1);
-    modelBFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2].slice(0, -1);
-    linearInterpolationFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[3].slice(0, -1);
+    imageFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[0];
+    yoloFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1];
+    modelBFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2];
+    linearInterpolationFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[3];
     userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[4];
 
     loadInitialComponents();
@@ -199,7 +199,7 @@ const controller = () => {
 
         outputFiles = fs.readdirSync(modelBFolderPath);
 
-        if (!fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter + 1]}.txt`)) {
+        if (!fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter + 1]}`)) {
             document.querySelector('.resizable').style.pointerEvents = 'all';
         } else {
             document.querySelector('.resizable').style.pointerEvents = 'none';
@@ -210,7 +210,7 @@ const controller = () => {
             //     method: 'post',
             //     body: JSON.stringify({
             //         frame_number: counter + 1,
-            //         frame_filename: `${outputFiles[counter]}.txt`,
+            //         frame_filename: `${outputFiles[counter]}`,
             //     }).then(() => {
             counter++;
             userCoordinates = [];
@@ -250,7 +250,7 @@ const controller = () => {
                 .split(' ');
             getTextData();
 
-            if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter - 1]}.txt`)) {
+            if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter - 1]}`)) {
                 document.querySelector('.resizable').style.pointerEvents = 'none';
             }
         }
