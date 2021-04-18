@@ -14,6 +14,9 @@ let modelBFolderPath;
 let modelBFiles;
 let linearInterpolationFolderPath;
 let linearInterpolationFiles;
+let yoloAllCoordinatesFolderPath;
+
+let outputFiles = [];
 
 let userOutputTextFolderPath;
 let userCoordinates = [];
@@ -27,25 +30,27 @@ const promptDialog = () => {
 };
 
 const saveUserCoordinates = () => {
-    if (fs.existsSync(`${userOutputTextFolderPath}\\${counter + 1}.txt`)) {
+    outputFiles = fs.readdirSync(modelBFolderPath);
+
+    if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
         userCoordinates = fs
-            .readFileSync(`${userOutputTextFolderPath}\\${counter + 1}.txt`, 'utf-8')
+            .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`, 'utf-8')
             .split(' ');
         userCoordinates.shift();
         fs.writeFileSync(
-            `${userOutputTextFolderPath}\\${counter + 1}.txt`,
+            `${userOutputTextFolderPath}\\${outputFiles[counter]}`,
             `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     } else {
         fs.writeFileSync(
-            `${userOutputTextFolderPath}\\${counter + 1}.txt`,
+            `${userOutputTextFolderPath}\\${outputFiles[counter]}`,
             `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     }
 };
 
 const getTextData = (reset = false) => {
-    if (reset && !fs.existsSync(`${userOutputTextFolderPath}\\${counter + 1}.txt`)) {
+    if (reset && !fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
         for (let i = 0; i < modelBData.length; i++) modelBData[i] *= 1;
         userCoordinates = modelBData;
         document.querySelector(
@@ -53,9 +58,9 @@ const getTextData = (reset = false) => {
         ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
         makeResizableDiv(...modelBData);
     } else {
-        if (fs.existsSync(`${userOutputTextFolderPath}\\${counter + 1}.txt`)) {
+        if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
             userCoordinates = fs
-                .readFileSync(`${userOutputTextFolderPath}\\${counter + 1}.txt`, 'utf-8')
+                .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`, 'utf-8')
                 .split(' ');
             userCoordinates.shift();
             for (let i = 0; i < userCoordinates.length; i++) userCoordinates[i] *= 1;
@@ -141,7 +146,9 @@ ipcRenderer.on('getPaths', (event, arg) => {
     yoloFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[1].slice(0, -1);
     modelBFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[2].slice(0, -1);
     linearInterpolationFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[3].slice(0, -1);
-    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[4];
+    userOutputTextFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[4].slice(0, -1);
+    yoloAllCoordinatesFolderPath = fs.readFileSync(arg[0]).toString().split('\n')[5];
+
 
     loadInitialComponents();
     controller();
@@ -193,39 +200,37 @@ const controller = () => {
     document.querySelector('.btn-next').addEventListener('click', () => {
         saveUserCoordinates();
 
-        if (!fs.existsSync(`${userOutputTextFolderPath}\\${counter + 2}.txt`)) {
+        outputFiles = fs.readdirSync(modelBFolderPath);
+
+        if (!fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter + 1]}`)) {
             document.querySelector('.resizable').style.pointerEvents = 'all';
         } else {
             document.querySelector('.resizable').style.pointerEvents = 'none';
         }
 
         if (modelBFiles[counter + 1]) {
-            fetch('https://localhost:5000/trigger', {
-                method: 'post',
-                body: JSON.stringify({
-                    frame_number: counter + 1,
-                    frame_filename: `${counter + 1}.txt`,
-                }).then(() => {
-                    counter++;
-                    userCoordinates = [];
-                    document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
-                    document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+            // fetch('https://localhost:5000/trigger', {
+            //     method: 'post',
+            //     body: JSON.stringify({
+            //         frame_number: counter + 1,
+            //         frame_filename: `${outputFiles[counter]}`,
+            //     }).then(() => {
+            counter++;
+            userCoordinates = [];
+            document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
+            document.querySelector('.file-name').innerHTML = modelBFiles[counter];
 
-                    yoloData = fs
-                        .readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8')
-                        .split(' ');
-                    modelBData = fs
-                        .readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8')
-                        .split(' ');
-                    linearInterpolationData = fs
-                        .readFileSync(
-                            `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
-                            'utf-8'
-                        )
-                        .split(' ');
-                    getTextData();
-                }),
-            });
+            yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
+            modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+            linearInterpolationData = fs
+                .readFileSync(
+                    `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                    'utf-8'
+                )
+                .split(' ');
+            getTextData();
+            //     }),
+            // });
         }
     });
 
@@ -248,7 +253,7 @@ const controller = () => {
                 .split(' ');
             getTextData();
 
-            if (fs.existsSync(`${userOutputTextFolderPath}\\${counter}.txt`)) {
+            if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter - 1]}`)) {
                 document.querySelector('.resizable').style.pointerEvents = 'none';
             }
         }

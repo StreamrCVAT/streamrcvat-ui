@@ -18,7 +18,7 @@ function createWindow() {
         dialog
             .showOpenDialog(mainWindow, {
                 buttonLabel: 'Select paths text file',
-                defaultPath: app.getPath('desktop'),
+                defaultPath: app.getAppPath(),
             })
             .then(result => {
                 paths = result.filePaths;
