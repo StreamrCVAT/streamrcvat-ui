@@ -216,29 +216,45 @@ const controller = () => {
             document.querySelector('.resizable').style.pointerEvents = 'none';
         }
 
-        if (modelBFiles[counter + 1]) {
-            // fetch('https://localhost:5000/trigger', {
-            //     method: 'post',
-            //     body: JSON.stringify({
-            //         frame_number: counter + 1,
-            //         frame_filename: `${outputFiles[counter]}`,
-            //     }).then(() => {
-            counter++;
-            userCoordinates = [];
-            document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
-            document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+        async function postData(url = '', data = {}) {
+            const response = await fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify(data)
+            });
+            return response.json();
+        }
 
-            yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
-            modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
-            linearInterpolationData = fs
-                .readFileSync(
-                    `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
-                    'utf-8'
-                )
-                .split(' ');
-            getTextData();
-            //     }),
-            // });
+        if (modelBFiles[counter + 1]) {
+            postData('http://127.0.0.1:5000/trigger', {
+                    frame_number: counter + 1,
+                    frame_filename: `${outputFiles[counter]}`
+                })
+                .then(data => {
+                    console.log(data);
+                    console.log("POST API call completed successfully!")
+                    counter++;
+                    userCoordinates = [];
+                    document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
+                    document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+
+                    yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
+                    modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+                    linearInterpolationData = fs
+                        .readFileSync(
+                            `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                            'utf-8'
+                        )
+                        .split(' ');
+                    getTextData();
+                });
         }
     });
 
