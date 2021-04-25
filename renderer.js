@@ -233,28 +233,30 @@ const controller = () => {
         }
 
         postData('http://127.0.0.1:5000/trigger', {
-                frame_number: counter + 1,
-                frame_filename: `${outputFiles[counter]}`
-            })
+            frame_number: counter + 1,
+            frame_filename: `${outputFiles[counter]}`
+        })
             .then(data => {
-                if (modelBFiles[counter + 1]) {
-                    console.log(data);
-                    console.log("POST API call completed successfully!")
-                    counter++;
-                    userCoordinates = [];
-                    document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
-                    document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+                modelBFiles = fs.readdirSync(modelBFolderPath);
+                yoloFiles = fs.readdirSync(yoloFolderPath);
 
-                    yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
-                    modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
-                    linearInterpolationData = fs
-                        .readFileSync(
-                            `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
-                            'utf-8'
-                        )
-                        .split(' ');
-                    getTextData();
-                }
+                console.log(data);
+                console.log("POST API call completed successfully!")
+                counter++;
+                userCoordinates = [];
+                document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
+                document.querySelector('.file-name').innerHTML = modelBFiles[counter];
+
+                yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
+                modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+                linearInterpolationData = fs
+                    .readFileSync(
+                        `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                        'utf-8'
+                    )
+                    .split(' ');
+                getTextData();
+
             });
 
     });
