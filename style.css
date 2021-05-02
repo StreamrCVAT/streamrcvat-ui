@@ -70,8 +70,8 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: white;
-    border: 3px solid #222831;
+    /* background: white;
+    border: 3px solid #222831; */
     position: absolute;
 }
 
