@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+
+        <link rel="stylesheet" href="/css/style.css" />
+
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"
+            referrerpolicy="no-referrer"
+        ></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.0/pace.min.js"
+            referrerpolicy="no-referrer"
+        ></script>
+        <script src="/js/vendor.js" defer></script>
+
+        <script src="/js/script.js" defer></script>
+
+        <title>Annotatist</title>
+    </head>
+
+    <body>
+        <div id="preloader">
+            <div id="loader"></div>
+        </div>
+
+        <header>
+            <div class="header-logo">
+                <a href="/">Annotatist</a>
+            </div>
+        </header>
+
+        <section id="home">
+            <div class="overlay"></div>
+
+            <div class="home-content-table">
+                <div class="home-content-tablecell">
+                    <div class="row">
+                        <div class="col-twelve">
+                            <h3 class="animate-intro">We Are Annotatist.</h3>
+                            <h1 class="animate-intro">
+                                Lorem ipsum dolor <br />
+                                sit amet consectetur.
+                            </h1>
+
+                            <div class="more animate-intro">
+                                <a class="button stroke" href="#about">Explore More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scrolldown">
+                <a href="#about" class="scroll-icon">Scroll Down</a>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="row about-wrap">
+                <div class="col-full">
+                    <div class="intro">
+                        <h3 class="animate-this">Explore</h3>
+
+                        <p class="lead animate-this">
+                            Select Paths file to Get Started! <br />
+                            &mdash; with <span>Annotatist</span>
+                        </p>
+
+                        <form class="annotate-form" action="/annotate/open" method="POST">
+                            <input
+                                class="annotate-form__paths-file"
+                                type="hidden"
+                                name="pathsFile"
+                                value=""
+                            />
+
+                            <button
+                                class="button annotate-form__button animate-this margin-top--medium"
+                                type="submit"
+                            >
+                                Annotate Now
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <img class="footer__logo" src="/assets/images/logo.png" alt="Logo" />
+
+            <h2 class="footer__title">Annotatist</h2>
+
+            <p class="footer__text">
+                Made and maintained by <br />
+                <a href="#" class="footer__link" target="_blank">Suriya KS</a> and
+                <a href="#" class="footer__link" target="_blank">Amrith V</a> &mdash; UI Team &nbsp; | &nbsp;
+                <a href="#" class="footer__link" target="_blank">Srishilesh P S</a> and
+                <a href="#" class="footer__link" target="_blank">Sanjay Tharagesh</a> &mdash; DL Team <br />
+                With credits to
+                <a href="https://www.styleshout.com/" class="footer__link" target="_blank">styleshout</a>
+            </p>
+        </footer>
+    </body>
+</html>
