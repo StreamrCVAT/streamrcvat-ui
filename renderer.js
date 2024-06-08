@@ -34,25 +34,25 @@ const promptDialog = () => {
 const saveUserCoordinates = () => {
     outputFiles = fs.readdirSync(modelBFolderPath);
 
-    if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
+    if (fs.existsSync(`${userOutputTextFolderPath}/${outputFiles[counter]}`)) {
         userCoordinates = fs
-            .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`, 'utf-8')
+            .readFileSync(`${userOutputTextFolderPath}/${outputFiles[counter]}`, 'utf-8')
             .split(' ');
         userCoordinates.shift();
         fs.writeFileSync(
-            `${userOutputTextFolderPath}\\${outputFiles[counter]}`,
+            `${userOutputTextFolderPath}/${outputFiles[counter]}`,
             `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     } else {
         fs.writeFileSync(
-            `${userOutputTextFolderPath}\\${outputFiles[counter]}`,
+            `${userOutputTextFolderPath}/${outputFiles[counter]}`,
             `${objectName} ${userCoordinates[0]} ${userCoordinates[1]} ${userCoordinates[2]} ${userCoordinates[3]}`
         );
     }
 };
 
 const getTextData = (reset = false) => {
-    if (reset && !fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
+    if (reset && !fs.existsSync(`${userOutputTextFolderPath}/${outputFiles[counter]}`)) {
         for (let i = 0; i < modelBData.length; i++) modelBData[i] *= 1;
         userCoordinates = modelBData;
         document.querySelector(
@@ -60,9 +60,9 @@ const getTextData = (reset = false) => {
         ).innerHTML = `(${modelBData[0]}, ${modelBData[1]}, ${modelBData[2]}, ${modelBData[3]})`;
         makeResizableDiv(...modelBData);
     } else {
-        if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`)) {
+        if (fs.existsSync(`${userOutputTextFolderPath}/${outputFiles[counter]}`)) {
             userCoordinates = fs
-                .readFileSync(`${userOutputTextFolderPath}\\${outputFiles[counter]}`, 'utf-8')
+                .readFileSync(`${userOutputTextFolderPath}/${outputFiles[counter]}`, 'utf-8')
                 .split(' ');
             userCoordinates.shift();
             for (let i = 0; i < userCoordinates.length; i++) userCoordinates[i] *= 1;
@@ -166,7 +166,7 @@ const loadInitialComponents = () => {
     document.querySelector('.container-right').classList.remove('hidden');
     document.querySelector('.nav').classList.remove('hidden');
     document.querySelector('.resizable').classList.remove('hidden');
-    document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[0]}`;
+    document.querySelector('.image').src = `${imageFolderPath}/${imageFiles[0]}`;
     document.querySelectorAll('.btn').forEach(btn => {
         btn.classList.remove('hidden');
     });
@@ -226,7 +226,7 @@ const controller = () => {
 
         outputFiles = fs.readdirSync(modelBFolderPath);
 
-        if (!fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter + 1]}`)) {
+        if (!fs.existsSync(`${userOutputTextFolderPath}/${outputFiles[counter + 1]}`)) {
             document.querySelector('.resizable').style.pointerEvents = 'all';
         } else {
             document.querySelector('.resizable').style.pointerEvents = 'none';
@@ -244,14 +244,14 @@ const controller = () => {
                 console.log("POST API call completed successfully!")
                 counter++;
                 userCoordinates = [];
-                document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
+                document.querySelector('.image').src = `${imageFolderPath}/${imageFiles[counter]}`;
                 document.querySelector('.file-name').innerHTML = modelBFiles[counter];
 
-                yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
-                modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+                yoloData = fs.readFileSync(`${yoloFolderPath}/${yoloFiles[counter]}`, 'utf-8').split(' ');
+                modelBData = fs.readFileSync(`${modelBFolderPath}/${modelBFiles[counter]}`, 'utf-8').split(' ');
                 linearInterpolationData = fs
                     .readFileSync(
-                        `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                        `${linearInterpolationFolderPath}/${linearInterpolationFiles[counter]}`,
                         'utf-8'
                     )
                     .split(' ');
@@ -267,35 +267,35 @@ const controller = () => {
         if (counter > 0) {
             counter--;
             userCoordinates = [];
-            document.querySelector('.image').src = `${imageFolderPath}\\${imageFiles[counter]}`;
+            document.querySelector('.image').src = `${imageFolderPath}/${imageFiles[counter]}`;
             document.querySelector('.file-name').innerHTML = modelBFiles[counter];
 
-            yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[counter]}`, 'utf-8').split(' ');
-            modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+            yoloData = fs.readFileSync(`${yoloFolderPath}/${yoloFiles[counter]}`, 'utf-8').split(' ');
+            modelBData = fs.readFileSync(`${modelBFolderPath}/${modelBFiles[counter]}`, 'utf-8').split(' ');
             linearInterpolationData = fs
                 .readFileSync(
-                    `${linearInterpolationFolderPath}\\${linearInterpolationFiles[counter]}`,
+                    `${linearInterpolationFolderPath}/${linearInterpolationFiles[counter]}`,
                     'utf-8'
                 )
                 .split(' ');
             getTextData();
 
-            if (fs.existsSync(`${userOutputTextFolderPath}\\${outputFiles[counter - 1]}`)) {
+            if (fs.existsSync(`${userOutputTextFolderPath}/${outputFiles[counter - 1]}`)) {
                 document.querySelector('.resizable').style.pointerEvents = 'none';
             }
         }
     });
 
-    yoloData = fs.readFileSync(`${yoloFolderPath}\\${yoloFiles[0]}`, 'utf-8').split(' ');
-    modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[0]}`, 'utf-8').split(' ');
+    yoloData = fs.readFileSync(`${yoloFolderPath}/${yoloFiles[0]}`, 'utf-8').split(' ');
+    modelBData = fs.readFileSync(`${modelBFolderPath}/${modelBFiles[0]}`, 'utf-8').split(' ');
     linearInterpolationData = fs
-        .readFileSync(`${linearInterpolationFolderPath}\\${linearInterpolationFiles[0]}`, 'utf-8')
+        .readFileSync(`${linearInterpolationFolderPath}/${linearInterpolationFiles[0]}`, 'utf-8')
         .split(' ');
     getTextData();
 };
 
 document.querySelector('.btn-reset').addEventListener('click', () => {
-    modelBData = fs.readFileSync(`${modelBFolderPath}\\${modelBFiles[counter]}`, 'utf-8').split(' ');
+    modelBData = fs.readFileSync(`${modelBFolderPath}/${modelBFiles[counter]}`, 'utf-8').split(' ');
     modelBData.shift();
     getTextData(true);
 });
